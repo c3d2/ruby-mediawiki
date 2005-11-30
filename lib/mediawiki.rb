@@ -11,7 +11,7 @@ module MediaWiki
   
     def initialize(url)
       @url = URI.parse( url.match(/\/$/) ? url : url + '/' )
-      @browser = MiniBrowser.new(@url.host, @url.user, @url.password)
+      @browser = MiniBrowser.new(@url)
     end
 
     def login( username, password )

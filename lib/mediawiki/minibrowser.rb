@@ -1,12 +1,13 @@
 require 'net/http'
+require 'net/https'
 require 'cgi'
 
 module MediaWiki
   class MiniBrowser
-    def initialize(host, http_user=nil, http_password=nil)
-      @http = Net::HTTP.new(host)
-      @http_user = http_user
-      @http_password = http_password
+    def initialize( url )
+      @url = url
+      @http = Net::HTTP.new( @url.host, @url.port )
+      @http.use_ssl = true if @url.class == URI::HTTPS
       @user_agent = 'WikiBot'
       @cookies = {}
     end
@@ -33,7 +34,7 @@ module MediaWiki
         request = Net::HTTP::Get.new(url, {'Content-Type' => 'application/x-www-form-urlencoded',
                                             'User-Agent' => @user_agent,
                                             'Cookie' => cookies})
-        request.basic_auth(@http_user, @http_password) if @http_user
+        request.basic_auth(@url.user, @url.password) if @url.user
         response = http.request(request)
 
         case response 
@@ -57,7 +58,7 @@ module MediaWiki
         request = Net::HTTP::Post.new(url, {'Content-Type' => 'application/x-www-form-urlencoded',
                                              'User-Agent' => @user_agent,
                                              'Cookie' => cookies})
-        request.basic_auth(@http_user, @http_password) if @http_user
+        request.basic_auth(@url.user, @url.password) if @url.user
         response = http.request(request, post_data)
       }
 
