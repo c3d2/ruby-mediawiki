@@ -47,11 +47,11 @@ module MediaWiki
       end
     end
 
-    ##
-    # TODO: minor_edit, watch_this
     def submit(summary, minor_edit=false, watch_this=false)
       puts "Posting to #{@wiki.article_url(@name)}&action=submit"
       data = {'wpTextbox1' => @text, 'wpSummary' => summary, 'wpSave' => 1, 'wpEditToken' => @wp_edittoken, 'wpEdittime' => @wp_edittime}
+      data['wpMinoredit'] = 1 if minor_edit
+      data['wpWatchthis'] = 'on' if watch_this
       result = @wiki.browser.post_content("#{@wiki.article_url(@name)}&action=submit", data)
       # TODO: Was edit successful? (We received the document anyways)
     end
