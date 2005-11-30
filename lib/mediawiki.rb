@@ -22,12 +22,12 @@ module MediaWiki
       end
     end
 
-    def article(name)
-      Article.new(self, name)
+    def article(name, section = nil)
+      Article.new(self, name, section)
     end
 
-    def article_url(name)
-      "#{@url.path}index.php?title=#{CGI::escape(name)}"
+    def article_url(name, section = nil)
+      "#{@url.path}index.php?title=#{CGI::escape(name)}#{section ? "&section=#{CGI::escape(section.to_s)}" : ''}"
     end
 
   end

@@ -4,9 +4,10 @@ module MediaWiki
   class Article
     attr_accessor :name, :text
     
-    def initialize(wiki, name, load_text=true)
+    def initialize(wiki, name, section = nil, load_text=true)
       @wiki = wiki
       @name = name
+      @section = section
 
       @text = nil
       @xhtml = nil
@@ -25,7 +26,7 @@ module MediaWiki
     end
 
     def xhtml_reload
-      html = @wiki.browser.get_content("#{@wiki.article_url(@name)}")
+      html = @wiki.browser.get_content("#{@wiki.article_url(@name, @section)}")
       html.scan(/<!-- start content -->(.+)<!-- end content -->/m) { |content,|
         @xhtml = REXML::Document.new("<xhtml>#{content}</xhtml>").root
       }
@@ -34,8 +35,8 @@ module MediaWiki
     end
 
     def reload
-      puts "Loading #{@wiki.article_url(@name)}&action=edit"
-      doc = REXML::Document.new(@wiki.browser.get_content("#{@wiki.article_url(@name)}&action=edit")).root
+      puts "Loading #{@wiki.article_url(@name, @section)}&action=edit"
+      doc = REXML::Document.new(@wiki.browser.get_content("#{@wiki.article_url(@name, @section)}&action=edit")).root
       @name = doc.elements['//span[@class="editHelp"]/a'].attributes['title']
       form = doc.elements['//form[@name="editform"]']
       @text = form.elements['textarea[@name="wpTextbox1"]'].text
@@ -48,11 +49,11 @@ module MediaWiki
     end
 
     def submit(summary, minor_edit=false, watch_this=false)
-      puts "Posting to #{@wiki.article_url(@name)}&action=submit"
+      puts "Posting to #{@wiki.article_url(@name, @section)}&action=submit"
       data = {'wpTextbox1' => @text, 'wpSummary' => summary, 'wpSave' => 1, 'wpEditToken' => @wp_edittoken, 'wpEdittime' => @wp_edittime}
       data['wpMinoredit'] = 1 if minor_edit
       data['wpWatchthis'] = 'on' if watch_this
-      result = @wiki.browser.post_content("#{@wiki.article_url(@name)}&action=submit", data)
+      result = @wiki.browser.post_content("#{@wiki.article_url(@name, @section)}&action=submit", data)
       # TODO: Was edit successful? (We received the document anyways)
     end
   end
