@@ -1,9 +1,7 @@
 WIKI_USER = 'AstRobot'
 WIKI_PASSWORD = '...'
 PAGE = 'Benutzer:Astro/Date_Determinator'
-WIKI = 'http://wiki.c3d2.de/wikipgedia'
-HTTP_USER = 'eris'
-HTTP_PASSWORD = '...'
+WIKI = 'http://eris:...@wiki.c3d2.de/wikipgedia'
 
 require 'yaml'
 $:.unshift('../lib')
@@ -132,7 +130,7 @@ end
 
 
 
-wiki = Wiki.new(WIKI, HTTP_USER, HTTP_PASSWORD)
+wiki = Wiki.new(WIKI)
 wiki.login(WIKI_USER, WIKI_PASSWORD)
 page = wiki.article(PAGE)
 

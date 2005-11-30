@@ -9,9 +9,9 @@ module MediaWiki
   class Wiki
     attr_accessor :browser
   
-    def initialize(url, http_user, http_password)
+    def initialize(url)
       @url = URI.parse( url.match(/\/$/) ? url : url + '/' )
-      @browser = MiniBrowser.new(@url.host, http_user, http_password)
+      @browser = MiniBrowser.new(@url.host, @url.user, @url.password)
     end
 
     def login( username, password )
