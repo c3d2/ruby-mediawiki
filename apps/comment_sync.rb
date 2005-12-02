@@ -120,36 +120,23 @@ class Comment_Synchronizer
   def update_database
     # fetch content from all wiki pages and put it in the database
     @tables.keys.sort.each do | table |
-      page = @wiki.article("Database/Tables/#{table.capitalize}")
+
+      # get the section containing the general description
+      page = @wiki.article("Database/Tables/#{table.capitalize}", 0)
+      @sql.set_table_description( table, page.text )
+
+      # get the section containing the column table
+      page = @wiki.article("Database/Tables/#{table.capitalize}", 1)
       state = :description
-      column, description = '', ''
+      column = ''
       # parse wiki text
-      page.text.each_line do | line |
-        if line.match(/^==Columns==$/)
-          state = :table
-          @sql.set_table_description( table, description.chomp )
-        elsif state == :description
-          description += line
-        elsif state == :table and line.match(/^\{\|/)
-        elsif line.match(/^!/)
-        elsif line.match(/\|----/)
-          state = :new
-        elsif state == :new and match = line.match(/^\|([a-z0-9_]+)/)
-          column = match[1]
-          state = :name
-        elsif state == :name and line.match(/^\|/)
-          state = :type
-        elsif state == :type and match = line.match(/^\|(.*)$/)
-          @sql.set_column_description( table, column, match[1].chomp )
-          state = :table
-        elsif line.match(/\}/)
-          break
-        else
-          raise "parse error: #{line} state: #{state}"
-        end
+      MediaWiki::Table.parse( page.text ).each do | column |
+        next if column[0] == 'field name' # this is the header column
+        @sql.set_column_description( table, column[0], column[2])
       end
     end
   end
+
 
 end
 
