@@ -4,6 +4,7 @@ $:.unshift('../lib')
 require 'postgres'
 require 'yaml'
 require 'mediawiki'
+require 'mediawiki/table'
 
 class SQL_Parser
   # returns a hash with the tablename as key
