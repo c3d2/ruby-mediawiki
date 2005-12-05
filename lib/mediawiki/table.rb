@@ -2,7 +2,27 @@
 module MediaWiki
 
   class Table
-    # takes the wiki markup of a table and returns a 2-dimensional array representing the rows and columns of the first table
+    def initialize( data = [], header = [] )
+      @data = data
+      @header = header
+    end
+
+    attr_accessor :table_style, :header_style, :row_style, :data, :header
+
+    def text
+      markup = "{| #{@table_style}\n"
+      markup += "|---- #{@header_style}\n" if @header_style unless @header.empty?
+      markup += @header.collect{ | col | "!#{col}\n" }.join('') unless @header.empty?
+      @data.each do | row |
+        markup += "|---- #{@row_style}\n"
+        markup += row.collect{ | col | "|#{col}\n" }.join('')
+      end
+      markup += "|}"
+      markup
+    end
+  
+    # takes the wiki markup of a table and returns a 2-dimensional array representing the rows and columns of the table
+    # TODO: fill member variables according to parsed tables
     def self.parse( text )
       table, row = nil, nil
       text.each_line do | line |
@@ -16,12 +36,10 @@ module MediaWiki
         elsif line.match( /^\|-/ )
           table.push( row ) unless row.empty?
           row = []
-        elsif match = line.match( /^(!|\|)(.*)$/ )
-          if match[2] == ""
-            row.push( "" )
-          else
-            match[2].split( '||', 1 ).each do | column | row.push( column.strip ) end
-          end
+        elsif match = line.match( /^(!|\|)$/ )
+          row.push( "" )
+        elsif match = line.match( /^(!|\|)(.+)$/ )
+          match[2].split( '||', -1 ).each do | column | row.push( column.strip ) end
         else
           raise "Error parsing the following line: #{line.inspect}"
         end
