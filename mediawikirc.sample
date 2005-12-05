@@ -1,0 +1,9 @@
+default: c3d2
+c3d2:
+  url: https://eris:...@wiki.c3d2.de/
+  user: AstRobot
+  password: ...
+blabla:
+  url: http://blabla.gov/wiki/
+  user: GWBush
+  password: Saddam

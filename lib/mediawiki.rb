@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 require 'uri'
-require 'yaml'
 
 require 'mediawiki/article'
 require 'mediawiki/minibrowser'
@@ -11,12 +10,12 @@ module MediaWiki
     attr_accessor :browser
   
     def initialize(url, user = nil, password = nil)
-      if url.class == Symbol
-        config = YAML.load_file("#{ENV['HOME']}/.mediawikirc")[url.to_s]
-        url = config['url']
-        user = config['user'] unless user
-        password = config['password'] unless password
-      end
+      #if url.class == Symbol
+      #  config = YAML.load_file("#{ENV['HOME']}/.mediawikirc")[url.to_s]
+      #  url = config['url']
+      #  user = config['user'] unless user
+      #  password = config['password'] unless password
+      #end
 
       @url = URI.parse( url.match(/\/$/) ? url : url + '/' )
       @browser = MiniBrowser.new(@url)
