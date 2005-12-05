@@ -65,12 +65,12 @@ module MediaWiki
       case response 
         when Net::HTTPSuccess 
         then 
-          add_cookie( response['Set-Cookie']) if response['Set-Cookie']
+          add_cookie( response.get_fields('Set-Cookie') ) if response['Set-Cookie']
           return response.body
         when Net::HTTPRedirection
         then
           puts "Redirecting to #{response['Location']}"
-          add_cookie( response['Set-Cookie']) if response['Set-Cookie']
+          add_cookie( response.get_fields('Set-Cookie') ) if response['Set-Cookie']
           return get_content(response['Location'])
         else
           raise "Unknown Response: #{response.inspect}"
