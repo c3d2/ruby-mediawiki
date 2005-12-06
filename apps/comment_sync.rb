@@ -124,7 +124,7 @@ class Comment_Synchronizer
 
       # get the section containing the general description
       page = @wiki.article("Database/Tables/#{table.capitalize}", 0)
-      @sql.set_table_description( table, page.text )
+      @sql.set_table_description( table, page.text.strip )
 
       # get the section containing the column table
       page = @wiki.article("Database/Tables/#{table.capitalize}", 1)
@@ -133,7 +133,7 @@ class Comment_Synchronizer
       # parse wiki text
       MediaWiki::Table.parse( page.text ).each do | column |
         next if column[0] == 'field name' # this is the header column
-        @sql.set_column_description( table, column[0], column[2])
+        @sql.set_column_description( table, column[0].strip, column[2].strip )
       end
     end
   end
