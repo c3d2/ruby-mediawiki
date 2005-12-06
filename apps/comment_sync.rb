@@ -4,6 +4,7 @@ $:.unshift('../lib')
 require 'postgres'
 require 'yaml'
 require 'mediawiki'
+require 'mediawiki/dotfile'
 require 'mediawiki/table'
 
 class SQL_Parser
@@ -82,7 +83,7 @@ end
 class Comment_Synchronizer
 
   def initialize( wiki, config, sql)
-    @wiki = MediaWiki::Wiki.new( wiki )
+    @wiki = MediaWiki.dotfile
     @sql = SQL_Comments.new(config)
     @tables = SQL_Parser.parse( sql )
   end
