@@ -48,6 +48,10 @@ class SQL_Comments
     data.gsub("\\",'').gsub("'", "''")
   end
 
+  def escape_ident( data )
+    data.gsub("\\",'').gsub('"', '')
+  end
+
   def get_table_description( table )
     @connection.exec("SELECT description 
                         FROM pg_description 
@@ -58,11 +62,11 @@ class SQL_Comments
   end
 
   def set_table_description( table, text )
-    @connection.exec("COMMENT ON TABLE \"#{escape(table)}\" IS #{text.to_s == "" ? 'NULL' : "'#{escape(text)}'"};")
+    @connection.exec("COMMENT ON TABLE \"#{escape_ident(table)}\" IS #{text.to_s == "" ? 'NULL' : "'#{escape(text)}'"};")
   end
 
   def set_column_description( table, column, text )
-    @connection.exec("COMMENT ON COLUMN \"#{escape(table)}\".\"#{escape(column)}\" IS #{text.to_s == "" ? 'NULL' : "'#{escape(text)}'"};")
+    @connection.exec("COMMENT ON COLUMN \"#{escape_ident(table)}\".\"#{escape(column)}\" IS #{text.to_s == "" ? 'NULL' : "'#{escape(text)}'"};")
   end
 
   def get_column_description( table, column )
