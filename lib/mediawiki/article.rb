@@ -57,15 +57,20 @@ module MediaWiki
       # TODO: Was edit successful? (We received the document anyways)
     end
 
+    def delete(reason)
+      data = {'wpReason' => reason, 'wpEditToken' => @wp_edittoken, 'wpConfirmB' => 'Delete Page'}
+      result = @wiki.browser.post_content("#{@wiki.article_url(@name)}&action=delete", data)
+    end
+
     def protect(reason, moves_only=false)
       data = {'wpReasonProtect' => reason, 'wpEditToken' => @wp_edittoken, 'wpConfirmProtectB' => 'Protect Page'}
       data['wpMoveOnly'] = 1 if moves_only
-      result = @wiki.browser.post_content("#{@wiki.article_url(@name, @section)}&action=protect", data)
+      result = @wiki.browser.post_content("#{@wiki.article_url(@name)}&action=protect", data)
     end
 
     def unprotect(reason)
       data = {'wpReasonProtect' => reason, 'wpEditToken' => @wp_edittoken, 'wpConfirmProtectB' => 'Protect Page'}
-      result = @wiki.browser.post_content("#{@wiki.article_url(@name, @section)}&action=unprotect", data)
+      result = @wiki.browser.post_content("#{@wiki.article_url(@name)}&action=unprotect", data)
     end
 
     def what_links_here
