@@ -62,11 +62,11 @@ class SQL_Comments
   end
 
   def set_table_description( table, text )
-    @connection.exec("COMMENT ON TABLE \"#{escape_ident(table)}\" IS #{text.to_s == "" ? 'NULL' : "'#{escape(text)}'"};")
+    @connection.exec("COMMENT ON TABLE \"#{escape_ident(table)}\" IS #{text.to_s == "" ? 'NULL' : "'#{escape(text.strip)}'"};")
   end
 
   def set_column_description( table, column, text )
-    @connection.exec("COMMENT ON COLUMN \"#{escape_ident(table)}\".\"#{escape(column)}\" IS #{text.to_s == "" ? 'NULL' : "'#{escape(text)}'"};")
+    @connection.exec("COMMENT ON COLUMN \"#{escape_ident(table)}\".\"#{escape_ident(column)}\" IS #{text.to_s == "" ? 'NULL' : "'#{escape(text.strip)}'"};")
   end
 
   def get_column_description( table, column )
@@ -129,7 +129,7 @@ class Comment_Synchronizer
 
       # get the section containing the general description
       page = @wiki.article("Database/Tables/#{table.capitalize}", 0)
-      @sql.set_table_description( table, page.text.strip )
+      @sql.set_table_description( table, page.text )
 
       # get the section containing the column table
       page = @wiki.article("Database/Tables/#{table.capitalize}", 1)
@@ -138,7 +138,7 @@ class Comment_Synchronizer
       # parse wiki text
       MediaWiki::Table.parse( page.text ).each do | column |
         next if column[0] == 'field name' # this is the header column
-        @sql.set_column_description( table, column[0].strip, column[2].strip )
+        @sql.set_column_description( table, column[0], column[2] )
       end
     end
   end
