@@ -55,6 +55,6 @@ end
   unless article.text.index("{{#{template_name}}}")
     article.text.gsub!(/\n+$/, '')
     article.text += "\n\n{{#{template_name}}}"
+    article.submit("This page must use the #{template_name} template!!!111")
   end
-  article.submit("This page must use the #{template_name} template!!!111")
 }
