@@ -1,11 +1,6 @@
-WIKI_USER = 'AstRobot'
-WIKI_PASSWORD = '...'
-PAGE = 'Benutzer:Astro/Date_Determinator'
-WIKI = 'http://eris:...@wiki.c3d2.de/wikipgedia'
-
 require 'yaml'
 $:.unshift('../lib')
-require 'mediawiki'
+require 'mediawiki/dotfile'
 
 include MediaWiki
 
@@ -130,41 +125,42 @@ end
 
 
 
-wiki = Wiki.new(WIKI)
-wiki.login(WIKI_USER, WIKI_PASSWORD)
-page = wiki.article(PAGE)
+wiki, conf = MediaWiki.dotfile('date determinator')
+conf['pages'].each { |name|
+  page = wiki.article(name)
 
-datasets = {}
-current_data_name = nil
-current_data_yaml = ''
-page.text.split(/\n/).each { |line|
-  if line =~ /BEGIN DATA "(.+?)"/
-    current_data_name = $1
-    current_data_yaml = ''
-  elsif line =~ /END DATA/ and current_data_name
-    datasets[current_data_name] = DateData.new(current_data_yaml)
-    current_data_name = nil
-    current_data_yaml = ''
-  elsif current_data_name
-    current_data_yaml += "#{line}\n"
+  datasets = {}
+  current_data_name = nil
+  current_data_yaml = ''
+  page.text.split(/\n/).each { |line|
+    if line =~ /BEGIN DATA "(.+?)"/
+      current_data_name = $1
+      current_data_yaml = ''
+    elsif line =~ /END DATA/ and current_data_name
+      datasets[current_data_name] = DateData.new(current_data_yaml)
+      current_data_name = nil
+      current_data_yaml = ''
+    elsif current_data_name
+      current_data_yaml += "#{line}\n"
+    end
+  }
+
+
+  text_old = page.text.dup
+
+  signature = /(<!-- BEGIN TABLE ")(.+?)(" -->)(.+?)(<!-- END TABLE -->)/m
+  page.text.gsub!(signature) { |part|
+    begin1,name,begin2,obsolete,end1 = part.match(signature).to_a[1..-1]
+    table = datasets[name] ? datasets[name].table : "DATA #{name} not found!"
+    p table
+    "#{begin1}#{name}#{begin2}\n#{table}\n#{end1}"
+  }
+  puts page.text
+
+  if page.text != text_old
+    puts "submitting"
+    page.submit('Date Determinator run')
   end
+
+  puts "done"
 }
-
-
-text_old = page.text.dup
-
-signature = /(<!-- BEGIN TABLE ")(.+?)(" -->)(.+?)(<!-- END TABLE -->)/m
-page.text.gsub!(signature) { |part|
-  begin1,name,begin2,obsolete,end1 = part.match(signature).to_a[1..-1]
-  table = datasets[name] ? datasets[name].table : "DATA #{name} not found!"
-  p table
-  "#{begin1}#{name}#{begin2}\n#{table}\n#{end1}"
-}
-puts page.text
-
-if page.text != text_old
-  puts "submitting"
-  page.submit('Date Determinator run')
-end
-
-puts "done"

@@ -3,6 +3,13 @@ c3d2:
   url: https://eris:...@wiki.c3d2.de/
   user: AstRobot
   password: ...
+  speed metal bot:
+    category: Ruby
+    user prefix: Benutzer
+    template: Rübÿ Spëëd Mëtäl Cödïng
+  date determinator:
+    pages:
+      - Benutzer:Astro/Date_Determinator
 blabla:
   url: http://blabla.gov/wiki/
   user: GWBush
