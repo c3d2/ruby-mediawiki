@@ -39,8 +39,16 @@ module MediaWiki
       Article.new(self, name, section)
     end
 
+    def allpages()
+      pages = []
+      Article.new( self, 'Special:Allpages', nil, false ).xhtml.each_element('table[2]/tr/td/a') do | a |
+        pages.push( a.text )
+      end
+      pages
+    end
+
     def article_url(name, section = nil)
-      "#{@url.path}index.php?title=#{CGI::escape(name)}#{section ? "&section=#{CGI::escape(section.to_s)}" : ''}"
+      "#{@url.path}index.php?title=#{CGI::escape(name.capitalize.gsub(' ', '_'))}#{section ? "&section=#{CGI::escape(section.to_s)}" : ''}"
     end
 
   end
