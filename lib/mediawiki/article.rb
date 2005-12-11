@@ -67,6 +67,15 @@ module MediaWiki
       data = {'wpReasonProtect' => reason, 'wpEditToken' => @wp_edittoken, 'wpConfirmProtectB' => 'Protect Page'}
       result = @wiki.browser.post_content("#{@wiki.article_url(@name, @section)}&action=unprotect", data)
     end
+
+    def what_links_here
+      res = []
+      links = REXML::Document.new(@wiki.browser.get_content(@wiki.article_url("Spezial:Whatlinkshere/#{@name}"))).root
+      links.each_element('//div[@id="bodyContent"]//ul/li/a') { |a|
+        res << a.attributes['title']
+      }
+      res
+    end
   end
 
 end
