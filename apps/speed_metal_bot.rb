@@ -41,7 +41,7 @@ projects.each_with_index { |project,i|
   newtemplate += "[[#{project}]]"
 }
 newtemplate += "<br/> </div>\n" +
-               "</div>"
+               "</div>\n"
 
 ### Submit template ###
 if template.text != newtemplate
@@ -51,6 +51,7 @@ end
 
 ### Let template be used by all in category ###
 (category.articles - articles_template).each { |name|
+  puts "#{name} is in category but doesn't use template"
   article = wiki.article(name)
   unless article.text.index("{{#{template_name}}}")
     article.text.gsub!(/\n+$/, '')
