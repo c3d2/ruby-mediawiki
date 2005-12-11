@@ -48,7 +48,7 @@ module MediaWiki
     end
 
     def article_url(name, section = nil)
-      "#{@url.path}index.php?title=#{CGI::escape(name.capitalize.gsub(' ', '_'))}#{section ? "&section=#{CGI::escape(section.to_s)}" : ''}"
+      "#{@url.path}index.php?title=#{CGI::escape(name.gsub(' ', '_'))}#{section ? "&section=#{CGI::escape(section.to_s)}" : ''}"
     end
 
   end

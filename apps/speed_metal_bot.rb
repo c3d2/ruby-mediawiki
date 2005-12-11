@@ -26,21 +26,21 @@ category.articles.each { |name|
 
 ### Construct template ###
 newtemplate = "<div align=\"center\" style=\"border: 1px solid black;\">\n" +
-              "<div style=\"background-color: #e64200;\">'''Rübÿ Spëëd Mëtäl Cödïng'''</div>\n" +
               "<div style=\"float: left; width: 64px; height: 64px;>[[Bild:Speed metal coding 64x64.jpg|left]]</div>\n" +
-              "<div style=\"margin-left: 70px;\"><br/>'''Coders:''' "
+              "<div style=\"margin-left: 70px; background-color: #e64200; font-size: large; height: 1.5em;\">'''Rübÿ Spëëd Mëtäl Cödïng'''</div>\n" +
+              "<div style=\"margin-left: 70px;\">'''Coders:''' "
 users.each_with_index { |user,i|
   newtemplate += " | " if i > 0
   newtemplate += "[[User:#{user}|#{user}]]"
 }
 
 newtemplate += "</div>\n" +
-               "<div style=\"margin-left: 70px;\">\n----\n'''Projects:''' "
+               "<div style=\"margin-left: 70px;\">'''Projects:''' "
 projects.each_with_index { |project,i|
   newtemplate += " | " if i > 0
   newtemplate += "[[#{project}]]"
 }
-newtemplate += "<br/> </div>\n" +
+newtemplate += "<br/></div>\n" +
                "</div>\n"
 
 ### Submit template ###
@@ -55,7 +55,7 @@ end
   article = wiki.article(name)
   unless article.text.index("{{#{template_name}}}")
     article.text.gsub!(/\n+$/, '')
-    article.text += "\n\n{{#{template_name}}}"
+    article.text += "\n\n\n\n{{#{template_name}}}"
     article.submit("This page must use the #{template_name} template!!!111")
   end
 }
