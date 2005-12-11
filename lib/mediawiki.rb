@@ -3,6 +3,7 @@
 require 'uri'
 
 require 'mediawiki/article'
+require 'mediawiki/category'
 require 'mediawiki/minibrowser'
 
 module MediaWiki
@@ -28,6 +29,10 @@ module MediaWiki
       if data =~ /<p class='error'>/
         raise "Unable to authenticate as #{username}"
       end
+    end
+
+    def category(name)
+      Category.new(self, name)
     end
 
     def article(name, section = nil)
