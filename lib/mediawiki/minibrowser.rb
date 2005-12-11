@@ -30,23 +30,26 @@ module MediaWiki
       retries = 10
 
       @http.start { |http|
-        raise "too many redirects" if retries < 1
-        request = Net::HTTP::Get.new(url, {'Content-Type' => 'application/x-www-form-urlencoded',
-                                            'User-Agent' => @user_agent,
-                                            'Cookie' => cookies})
-        request.basic_auth(@url.user, @url.password) if @url.user
-        response = http.request(request)
+        loop {
+          raise "too many redirects" if retries < 1
 
-        case response 
-          when Net::HTTPSuccess, Net::HTTPNotFound then 
-            return response.body
-          when Net::HTTPRedirection then
-            puts "Redirecting to #{response['Location']}"
-            retries -= 1
-            url = response['Location']
-          else
-            raise "Unknown Response: #{response.inspect}"
-        end
+          request = Net::HTTP::Get.new(url, {'Content-Type' => 'application/x-www-form-urlencoded',
+                                              'User-Agent' => @user_agent,
+                                              'Cookie' => cookies})
+          request.basic_auth(@url.user, @url.password) if @url.user
+          response = http.request(request)
+
+          case response 
+            when Net::HTTPSuccess, Net::HTTPNotFound then 
+              return response.body
+            when Net::HTTPRedirection then
+              puts "Redirecting to #{response['Location']}"
+              retries -= 1
+              url = response['Location']
+            else
+              raise "Unknown Response: #{response.inspect}"
+          end
+        }
       }
     end
 
