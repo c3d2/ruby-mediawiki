@@ -11,9 +11,7 @@ template_name = conf['template']
 category = wiki.category(category_name)
 template = wiki.article("Template:#{template_name}")
 
-articles_template = template.what_links_here
 puts "Category #{category_name}: #{category.articles.inspect}"
-puts "Template #{template_name}: #{articles_template.inspect}"
 
 users = []
 projects = []
@@ -52,7 +50,7 @@ if template.text != newtemplate
 end
 
 ### Let template be used by all in category ###
-(category.articles - articles_template).each { |name|
+category.articles.each { |name|
   puts "#{name} is in category but doesn't use template"
   article = wiki.article(name)
   unless article.text.index("{{#{template_name}}}")
