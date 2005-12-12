@@ -4,14 +4,16 @@ $:.unshift('../lib')
 require 'mediawiki/dotfile'
 
 wiki, conf = MediaWiki.dotfile('speed metal bot')
-category = conf['category']
+category_name = conf['category']
 user_prefix = conf['user prefix']
 template_name = conf['template']
 
-category = wiki.category(category)
+category = wiki.category(category_name)
 template = wiki.article("Template:#{template_name}")
 
 articles_template = template.what_links_here
+puts "Category #{category_name}: #{category.articles.inspect}"
+puts "Template #{template_name}: #{articles_template.inspect}"
 
 users = []
 projects = []
