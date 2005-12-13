@@ -1,9 +1,22 @@
 require 'rexml/document'
 
 module MediaWiki
+  ##
+  # The Article class represents MediaWiki articles.
   class Article
-    attr_accessor :name, :text
-    
+    ##
+    # Article name, will be refreshed upon Article#reload
+    attr_accessor :name
+    ##
+    # Article text, will be set by Article#reload
+    attr_accessor :text
+
+    ##
+    # Create a new Article instance
+    # wiki:: [Wiki] instance to be used to theive the MiniBrowser
+    # name:: [String] Article name
+    # section:: [Fixnum] Optional article section number
+    # load_text:: [Boolean] Invoke Article#reload to retrieve Article#text
     def initialize(wiki, name, section = nil, load_text=true)
       @wiki = wiki
       @name = name
@@ -18,6 +31,10 @@ module MediaWiki
       reload if load_text
     end
 
+    ##
+    # Get the XHTML,
+    # will invoke Article#xhtml_reload if not already cached
+    # result:: [REXML::Element] html root element
     def xhtml
       unless @xhtml_cached
         xhtml_reload
@@ -25,6 +42,9 @@ module MediaWiki
       @xhtml
     end
 
+    ##
+    # Reload the xhtml,
+    # will be automatically done by Article#xhtml if not already cached.
     def xhtml_reload
       html = @wiki.browser.get_content("#{@wiki.article_url(@name, @section)}")
       html.scan(/<!-- start content -->(.+)<!-- end content -->/m) { |content,|
@@ -34,6 +54,9 @@ module MediaWiki
       @xhtml_cached = true
     end
 
+    ##
+    # Reload Article#text,
+    # should be done by Article#initialize.
     def reload
       puts "Loading #{@wiki.article_url(@name, @section)}&action=edit"
       doc = REXML::Document.new(@wiki.browser.get_content("#{@wiki.article_url(@name, @section)}&action=edit")).root
@@ -48,6 +71,13 @@ module MediaWiki
       end
     end
 
+    ##
+    # Push the *Submit* button
+    #
+    # Send the modified Article#text to the MediaWiki.
+    # summary:: [String] Change summary
+    # minor_edit:: [Boolean] This is a Minor Edit
+    # watch_this:: [Boolean] Watch this article
     def submit(summary, minor_edit=false, watch_this=false)
       puts "Posting to #{@wiki.article_url(@name, @section)}&action=submit"
       data = {'wpTextbox1' => @text, 'wpSummary' => summary, 'wpSave' => 1, 'wpEditToken' => @wp_edittoken, 'wpEdittime' => @wp_edittime}
@@ -57,22 +87,34 @@ module MediaWiki
       # TODO: Was edit successful? (We received the document anyways)
     end
 
+    ##
+    # Delete this article
+    # reason:: [String] Delete reason
     def delete(reason)
       data = {'wpReason' => reason, 'wpEditToken' => @wp_edittoken, 'wpConfirmB' => 'Delete Page'}
       result = @wiki.browser.post_content("#{@wiki.article_url(@name)}&action=delete", data)
     end
 
+    ##
+    # Protect this article
+    # reason:: [String] Protect reason
     def protect(reason, moves_only=false)
       data = {'wpReasonProtect' => reason, 'wpEditToken' => @wp_edittoken, 'wpConfirmProtectB' => 'Protect Page'}
       data['wpMoveOnly'] = 1 if moves_only
       result = @wiki.browser.post_content("#{@wiki.article_url(@name)}&action=protect", data)
     end
 
+    ##
+    # Unprotect this article
+    # reason:: [String] Unprotect reason
     def unprotect(reason)
       data = {'wpReasonProtect' => reason, 'wpEditToken' => @wp_edittoken, 'wpConfirmProtectB' => 'Protect Page'}
       result = @wiki.browser.post_content("#{@wiki.article_url(@name)}&action=unprotect", data)
     end
 
+    ##
+    # What articles link to this article?
+    # result:: [Array] of [String] Article names
     def what_links_here
       res = []
       links = REXML::Document.new(@wiki.browser.get_content(@wiki.article_url("Spezial:Whatlinkshere/#{@name}"))).root
