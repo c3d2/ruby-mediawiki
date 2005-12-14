@@ -31,8 +31,15 @@ def wiki_format(flow)
       flow.contents.each { |subflow|
         s += wiki_format(subflow)
       }
+      s += "\n"
     when SM::Flow::LI
-      s += "* '''#{flow.label}''' #{flow.body}\n"
+      if flow.label =~ /:$/
+        s += "; #{flow.label}\n: #{flow.body}\n"
+      elsif flow.label =~ /^[ \*]$/
+        s += "#{flow.label} #{flow.body}\n"
+      else
+        s += "* '''#{flow.label}:''' #{flow.body}\n"
+      end
     when SM::Flow::P
       s += "#{flow.body}\n\n"
     else
@@ -41,6 +48,7 @@ def wiki_format(flow)
   s.gsub!(/&quot;/, '"')
   s.gsub!(/<b>(.+?)<\/b>/, '\'\'\'\1\'\'\'')
   s.gsub!(/<i>(.+?)<\/i>/, '\'\'\1\'\'')
+  s.gsub!(/<tt>(.+?)<\/tt>/, '<em>\1</em>')
   s
 end
 
@@ -71,7 +79,13 @@ classes.sort! { |a,b|
   a.full_name <=> b.full_name
 }
 methods.sort! { |a,b|
-  a.full_name <=> b.full_name
+  if a.full_name.index('#') and b.full_name.index('#').nil?
+    1
+  elsif a.full_name.index('#').nil? and b.full_name.index('#')
+    -1
+  else
+    a.full_name <=> b.full_name
+  end
 }
 
 text = ''
@@ -80,13 +94,12 @@ classes.each { |klass|
   text += wiki_format(klass.comment || [])
   methods.each { |method|
     if belongs_to_class?(klass.full_name, method.full_name)
-      text += "===#{method.full_name}===\n"
+      text += "===#{method.full_name}#{method.params}===\n\n"
       text += wiki_format(method.comment || [])
       text += "\n"
     end
   }
 }
-
 
 wiki, conf = MediaWiki.dotfile('rdoc to wiki')
 article = wiki.article(conf['page'])
