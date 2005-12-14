@@ -10,6 +10,9 @@ c3d2:
   date determinator:
     pages:
       - Benutzer:Astro/Date_Determinator
+  rdoc to wiki:
+    title: Ruby-MediaWiki Documentation
+    page: Ruby-MediaWiki/Documentation
 blabla:
   url: http://blabla.gov/wiki/
   user: GWBush

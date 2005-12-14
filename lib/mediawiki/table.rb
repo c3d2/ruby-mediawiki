@@ -22,6 +22,7 @@ module MediaWiki
     end
   
     # takes the wiki markup of a table and returns a 2-dimensional array representing the rows and columns of the table
+    #
     # TODO: fill member variables according to parsed tables
     def self.parse( text )
       table, row = nil, nil
