@@ -52,15 +52,9 @@ def wiki_format(flow)
   s
 end
 
-def belongs_to_class?(classname, methodname)
-  c = classname.split(/::|#/)
-  m = methodname.split(/::|#/)
-  m.pop
-  c == m
-end
 
 classes = []
-methods = []
+methods = {}
 
 find("../rdoc-ri") { |file|
   next unless file =~ /\.yaml$/
@@ -69,7 +63,7 @@ find("../rdoc-ri") { |file|
     when RI::ClassDescription
       classes << ri
     when RI::MethodDescription
-      methods << ri
+      methods[ri.full_name] = ri
     else
       puts "Unknown Description: #{ri.inspect}"
   end
@@ -78,28 +72,35 @@ find("../rdoc-ri") { |file|
 classes.sort! { |a,b|
   a.full_name <=> b.full_name
 }
-methods.sort! { |a,b|
-  if a.full_name.index('#') and b.full_name.index('#').nil?
-    1
-  elsif a.full_name.index('#').nil? and b.full_name.index('#')
-    -1
-  else
-    a.full_name <=> b.full_name
-  end
-}
 
 text = ''
 classes.each { |klass|
   text += "==#{klass.full_name}==\n\n"
+  text += "Inherited from '''#{klass.superclass}'''\n\n" if klass.superclass
   text += wiki_format(klass.comment || [])
-  methods.each { |method|
-    if belongs_to_class?(klass.full_name, method.full_name)
-      text += "===#{method.full_name}#{method.params}===\n\n"
-      text += wiki_format(method.comment || [])
-      text += "\n"
-    end
+  klass.attributes.each { |attribute|
+    text += "===#{klass.full_name}##{attribute.name} (#{attribute.rw})===\n\n"
+    text += wiki_format(attribute.comment || [])
+    text += "\n"
+  }
+  klass.class_methods.each { |methodname|
+    method = methods["#{klass.full_name}::#{methodname.name}"]
+    text += "===#{method.full_name}#{method.params}===\n\n"
+    text += wiki_format(method.comment || [])
+    text += "\n"
+  }
+  klass.instance_methods.each { |methodname|
+    method = methods["#{klass.full_name}##{methodname.name}"]
+    text += "===#{method.full_name}#{method.params}===\n\n"
+    text += wiki_format(method.comment || [])
+    text += "\n"
   }
 }
+
+if false    # Dry run?
+  puts text
+  exit
+end
 
 wiki, conf = MediaWiki.dotfile('rdoc to wiki')
 article = wiki.article(conf['page'])

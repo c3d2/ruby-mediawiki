@@ -51,9 +51,9 @@ end
 
 ### Let template be used by all in category ###
 category.articles.each { |name|
-  puts "#{name} is in category but doesn't use template"
   article = wiki.article(name)
   unless article.text.index("{{#{template_name}}}")
+    puts "#{article.name} is in category but doesn't use template"
     article.text.gsub!(/\n+$/, '')
     article.text += "\n\n\n\n{{#{template_name}}}"
     article.submit("This page must use the #{template_name} template!!!111")

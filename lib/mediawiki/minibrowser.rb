@@ -3,8 +3,20 @@ require 'net/https'
 require 'cgi'
 
 module MediaWiki
+  ##
+  # The MiniBrowser is used to perform GET and POST requests
+  # over HTTP and HTTPS, supporting:
+  # * HTTP-Auth encoding in URLs (proto://user:password@host/...)
+  # * Cookie support
+  # * HTTP Redirection (max. 10 in a row)
+  #
+  # All interaction with MiniBrowser is normally done by
+  # MediaWiki::Wiki.
   class MiniBrowser
-    def initialize( url )
+    ##
+    # Initialize a MiniBrowser instance
+    # url:: [URI::HTTP] or [URI::HTTPS]
+    def initialize(url)
       @url = url
       @http = Net::HTTP.new( @url.host, @url.port )
       @http.use_ssl = true if @url.class == URI::HTTPS
@@ -12,7 +24,10 @@ module MediaWiki
       @cookies = {}
     end
 
-    def add_cookie( cookies )
+    ##
+    # Add cookies to the volatile cookie cache
+    # cookies:: [Array]
+    def add_cookie(cookies)
       cookies.each do | c |
         c.gsub!(/;.*$/, '')
         if match = c.match(/([^=]+)=(.*)/)
@@ -21,11 +36,20 @@ module MediaWiki
       end
     end
 
+    ##
+    # Get the cookie cache in a serialized form ready for HTTP.
+    # result:: [String]
     def cookies
       c = @cookies.collect do | key, value | "#{key}=#{value}" end
       c.join(";")
     end
 
+    ##
+    # Perform a GET request
+    #
+    # This method accepts 10 HTTP redirects at max.
+    # url:: [String]
+    # result:: [String] Document
     def get_content(url)
       retries = 10
 
@@ -53,7 +77,14 @@ module MediaWiki
       }
     end
 
-    def post_content( url, data )
+    ##
+    # Perform a POST request
+    #
+    # Will switch to MiniBrowser#get_content upon HTTP redirect.
+    # url:: [String]
+    # data:: [Hash] POST data
+    # result:: [String] Document
+    def post_content(url, data)
       post_data = data.collect { | key, value | "#{CGI::escape(key.to_s)}=#{CGI::escape(value.to_s)}" }.join('&')
       response = nil
 

@@ -1,38 +1,33 @@
 require 'rexml/document'
+require 'mediawiki/article'
 
 module MediaWiki
   ##
   # The Category class represents MediaWiki categories.
-  class Category
+  class Category < Article
     ##
-    # Create a new Category instance
-    # wiki:: [Wiki] instance to be used to theive the MiniBrowser
-    # name:: [String] Category name, to be prefixed with "Category:" when being fetched
-    def initialize(wiki, name)
-      @cached = false
-      @doc = nil
-      @wiki = wiki
-      @name = name
+    # This returns the full article name prefixed with "Category:"
+    # instead of the name, which should not carry a prefix.
+    def full_name
+      "Category:#{@name}"
     end
 
     ##
-    # Reload the XML, will be invoked by
-    # Category#articles, if not already cached.
+    # Calls the reload function of the super-class (Article#reload)
+    # but removes the prefix (namespace) then.
+    #
+    # Use to full_name to obtain the name with namespace.
     def reload
-      @doc = REXML::Document.new(@wiki.browser.get_content(@wiki.article_url("Category:#{@name}"))).root
-      @cached = true
+      super
+      @name.sub!(/^.+?:/, '')
     end
-
+    
     ##
     # Which articles belong to this category?
     # result:: [Array] of [String] Article names
     def articles
-      unless @cached
-        reload
-      end
-
       res = []
-      @doc.each_element('//div[@id="bodyContent"]//ul/li/a') { |a,|
+      xhtml.each_element('//div[@id="bodyContent"]//ul/li/a') { |a,|
         res << a.attributes['title']
       }
       res

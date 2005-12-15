@@ -32,6 +32,16 @@ module MediaWiki
     end
 
     ##
+    # Return the full article name
+    #
+    # This will only return @name, but may be overriden by descendants
+    # to include namespaces.
+    # result:: [String] Full name
+    def full_name
+      @name
+    end
+
+    ##
     # Get the XHTML,
     # will invoke Article#xhtml_reload if not already cached
     # result:: [REXML::Element] html root element
@@ -46,10 +56,8 @@ module MediaWiki
     # Reload the xhtml,
     # will be automatically done by Article#xhtml if not already cached.
     def xhtml_reload
-      html = @wiki.browser.get_content("#{@wiki.article_url(@name, @section)}")
-      html.scan(/<!-- start content -->(.+)<!-- end content -->/m) { |content,|
-        @xhtml = REXML::Document.new("<xhtml>#{content}</xhtml>").root
-      }
+      html = @wiki.browser.get_content("#{@wiki.article_url(full_name, @section)}")
+      @xhtml = REXML::Document.new(html).root
       
       @xhtml_cached = true
     end
@@ -58,8 +66,8 @@ module MediaWiki
     # Reload Article#text,
     # should be done by Article#initialize.
     def reload
-      puts "Loading #{@wiki.article_url(@name, @section)}&action=edit"
-      doc = REXML::Document.new(@wiki.browser.get_content("#{@wiki.article_url(@name, @section)}&action=edit")).root
+      puts "Loading #{@wiki.article_url(full_name, @section)}&action=edit"
+      doc = REXML::Document.new(@wiki.browser.get_content("#{@wiki.article_url(full_name, @section)}&action=edit")).root
       @name = doc.elements['//span[@class="editHelp"]/a'].attributes['title']
       form = doc.elements['//form[@name="editform"]']
       @text = form.elements['textarea[@name="wpTextbox1"]'].text
@@ -79,11 +87,11 @@ module MediaWiki
     # minor_edit:: [Boolean] This is a Minor Edit
     # watch_this:: [Boolean] Watch this article
     def submit(summary, minor_edit=false, watch_this=false)
-      puts "Posting to #{@wiki.article_url(@name, @section)}&action=submit"
+      puts "Posting to #{@wiki.article_url(full_name, @section)}&action=submit"
       data = {'wpTextbox1' => @text, 'wpSummary' => summary, 'wpSave' => 1, 'wpEditToken' => @wp_edittoken, 'wpEdittime' => @wp_edittime}
       data['wpMinoredit'] = 1 if minor_edit
       data['wpWatchthis'] = 'on' if watch_this
-      result = @wiki.browser.post_content("#{@wiki.article_url(@name, @section)}&action=submit", data)
+      result = @wiki.browser.post_content("#{@wiki.article_url(full_name, @section)}&action=submit", data)
       # TODO: Was edit successful? (We received the document anyways)
     end
 
@@ -92,7 +100,7 @@ module MediaWiki
     # reason:: [String] Delete reason
     def delete(reason)
       data = {'wpReason' => reason, 'wpEditToken' => @wp_edittoken, 'wpConfirmB' => 'Delete Page'}
-      result = @wiki.browser.post_content("#{@wiki.article_url(@name)}&action=delete", data)
+      result = @wiki.browser.post_content("#{@wiki.article_url(full_name)}&action=delete", data)
     end
 
     ##
@@ -101,7 +109,7 @@ module MediaWiki
     def protect(reason, moves_only=false)
       data = {'wpReasonProtect' => reason, 'wpEditToken' => @wp_edittoken, 'wpConfirmProtectB' => 'Protect Page'}
       data['wpMoveOnly'] = 1 if moves_only
-      result = @wiki.browser.post_content("#{@wiki.article_url(@name)}&action=protect", data)
+      result = @wiki.browser.post_content("#{@wiki.article_url(full_name)}&action=protect", data)
     end
 
     ##
@@ -109,7 +117,7 @@ module MediaWiki
     # reason:: [String] Unprotect reason
     def unprotect(reason)
       data = {'wpReasonProtect' => reason, 'wpEditToken' => @wp_edittoken, 'wpConfirmProtectB' => 'Protect Page'}
-      result = @wiki.browser.post_content("#{@wiki.article_url(@name)}&action=unprotect", data)
+      result = @wiki.browser.post_content("#{@wiki.article_url(full_name)}&action=unprotect", data)
     end
 
     ##
@@ -117,7 +125,7 @@ module MediaWiki
     # result:: [Array] of [String] Article names
     def what_links_here
       res = []
-      links = REXML::Document.new(@wiki.browser.get_content(@wiki.article_url("Spezial:Whatlinkshere/#{@name}"))).root
+      links = REXML::Document.new(@wiki.browser.get_content(@wiki.article_url("Spezial:Whatlinkshere/#{full_name}"))).root
       links.each_element('//div[@id="bodyContent"]//ul/li/a') { |a|
         res << a.attributes['title']
       }
