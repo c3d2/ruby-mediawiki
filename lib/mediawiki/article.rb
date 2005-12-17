@@ -67,13 +67,19 @@ module MediaWiki
     # should be done by Article#initialize.
     def reload
       puts "Loading #{@wiki.article_url(full_name, @section)}&action=edit"
-      doc = REXML::Document.new(@wiki.browser.get_content("#{@wiki.article_url(full_name, @section)}&action=edit")).root
+      parse @wiki.browser.get_content("#{@wiki.article_url(full_name, @section)}&action=edit")
+    end
+
+    def parse(html)
+      doc = REXML::Document.new(html).root
       @name = doc.elements['//span[@class="editHelp"]/a'].attributes['title']
       form = doc.elements['//form[@name="editform"]']
       @text = form.elements['textarea[@name="wpTextbox1"]'].text
       begin
-        @wp_edittoken = form.elements['input[@name="wpEditToken"]'].attributes['value']
-        @wp_edittime = form.elements['input[@name="wpEdittime"]'].attributes['value']
+        form.each_element('input') { |e|
+          @wp_edittoken = e.attributes['value'] if e.attributes['name'] == 'wpEditToken'
+          @wp_edittime = e.attributes['value'] if e.attributes['name'] == 'wpEdittime'
+        }
       rescue NoMethodError
         # wpEditToken might be missing, that's ok
       end
@@ -86,13 +92,30 @@ module MediaWiki
     # summary:: [String] Change summary
     # minor_edit:: [Boolean] This is a Minor Edit
     # watch_this:: [Boolean] Watch this article
-    def submit(summary, minor_edit=false, watch_this=false)
-      puts "Posting to #{@wiki.article_url(full_name, @section)}&action=submit"
+    def submit(summary, minor_edit=false, watch_this=false, retries=10)
+      puts "Posting to #{@wiki.article_url(full_name, @section)}&action=submit with wpEditToken=#{@wp_edittoken} wpEdittime=#{@wp_edittime}"
       data = {'wpTextbox1' => @text, 'wpSummary' => summary, 'wpSave' => 1, 'wpEditToken' => @wp_edittoken, 'wpEdittime' => @wp_edittime}
       data['wpMinoredit'] = 1 if minor_edit
       data['wpWatchthis'] = 'on' if watch_this
-      result = @wiki.browser.post_content("#{@wiki.article_url(full_name, @section)}&action=submit", data)
-      # TODO: Was edit successful? (We received the document anyways)
+      begin
+        parse @wiki.browser.post_content("#{@wiki.article_url(full_name, @section)}&action=submit", data)
+      rescue NoMethodError
+        # This means, we havn't got the preview page, but the posted article
+        # So everything is Ok, but we must reload the edit page here, to get
+        # a new wpEditToken and wpEdittime
+        reload
+        return
+      end
+
+      unless @wp_edittoken.to_s == '' and @wp_edittime.to_s == ''
+        if (data['wpEditToken'] != @wp_edittoken) or (data['wpEdittime'] != @wp_edittime)
+          if retries > 0
+            submit(summary, minor_edit, watch_this, retries - 1)
+          else
+            raise "Re-submit limit reached"
+          end
+        end
+      end
     end
 
     ##
@@ -134,4 +157,3 @@ module MediaWiki
   end
 
 end
-
