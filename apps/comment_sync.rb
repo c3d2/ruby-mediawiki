@@ -53,8 +53,8 @@ class SQL_Comments
   end
 
   def get_table_description( table )
-    @connection.exec("SELECT description 
-                        FROM pg_description 
+    @connection.exec("SELECT description
+                        FROM pg_description
                              INNER JOIN pg_class ON ( pg_class.oid = pg_description.objoid )
                        WHERE pg_description.objsubid = 0 AND
                              pg_class.relname = '#{escape(table)}';"
@@ -73,8 +73,8 @@ class SQL_Comments
     @connection.exec("SELECT description
                         FROM pg_description
                              INNER JOIN pg_class ON ( pg_class.oid = pg_description.objoid )
-                             INNER JOIN pg_attribute ON 
-                                ( pg_attribute.attrelid = pg_description.objoid AND 
+                             INNER JOIN pg_attribute ON
+                                ( pg_attribute.attrelid = pg_description.objoid AND
                                   pg_description.objsubid = pg_attribute.attnum )
                        WHERE pg_class.relname = '#{escape(table)}' AND
                              pg_attribute.attname = '#{escape(column)}'"
@@ -82,7 +82,7 @@ class SQL_Comments
   end
 
 end
-  
+
 
 class Comment_Synchronizer
 
@@ -92,6 +92,7 @@ class Comment_Synchronizer
     @tables = SQL_Parser.parse( sql )
   end
 
+  # update wiki with content from database
   def update_wiki
     # generate index page
     page = @wiki.article('Database/Tables')
@@ -114,7 +115,7 @@ class Comment_Synchronizer
 
       @tables[table][:field_names].each do | field_name |
         page.text += "|----\n|#{field_name}\n|#{@tables[table][:field][field_name]}\n|#{@sql.get_column_description( table, field_name)}\n"
-      end 
+      end
       page.text += "|}\n\n"
       page.text += "[[Category:Database]]\n"
       page.submit("updating page for table #{table}")
@@ -153,4 +154,4 @@ end
   bot = Comment_Synchronizer.new( :pentabarf, db_config, sql )
   bot.update_database
   bot.update_wiki
-  
+
