@@ -111,13 +111,17 @@ class Comment_Synchronizer
       page.text = @sql.get_table_description( table ).to_s + "\n"
       # table header
       page.text += "==Columns==\n"
-      page.text += "{| border=1 cellspacing=\"0\" cellpadding=\"3\"\n|---- bgcolor=lightblue\n!field name\n!datatype\n!description\n"
+      t = MediaWiki::Table.new
+      t.style = 'border="1" cellspacing="0" cellpadding="3"'
+      t.header_style = 'bgcolor="lightblue"'
+      t.header = ['field name', 'datatype', 'description']
 
       @tables[table][:field_names].each do | field_name |
-        page.text += "|----\n|#{field_name}\n|#{@tables[table][:field][field_name]}\n|#{@sql.get_column_description( table, field_name)}\n"
+        t.data.push([field_name, @tables[table][:field][field_name], @sql.get_column_description( table, field_name)])
       end
-      page.text += "|}\n\n"
-      page.text += "[[Category:Database]]\n"
+      page.text += t.text
+      page.text += "\n[[Category:Database]]\n"
+      puts page.text
       page.submit("updating page for table #{table}")
 
     end
