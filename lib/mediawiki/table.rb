@@ -7,10 +7,10 @@ module MediaWiki
       @header = header
     end
 
-    attr_accessor :table_style, :header_style, :row_style, :data, :header
+    attr_accessor :style, :header_style, :row_style, :data, :header
 
     def text
-      markup = "{| #{@table_style}\n"
+      markup = "{| #{@style}\n"
       markup += "|---- #{@header_style}\n" if @header_style unless @header.empty?
       markup += @header.collect{ | col | "!#{col}\n" }.join('') unless @header.empty?
       @data.each do | row |
