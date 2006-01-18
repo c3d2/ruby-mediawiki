@@ -31,20 +31,20 @@ module MediaWiki
           table, row = [], []
         elsif table.nil?
           # ignoring line probably not belonging to a table
-        elsif line.match( /^\|\}/ )
+        elsif line.match( /^ *\|\}/ )
           # end of table
           table.push( row ) unless row.empty?
           return table
-        elsif line.match( /^\|-/ )
+        elsif line.match( /^ *\|-/ )
           # new row
           table.push( row ) unless row.empty?
           row = []
-        elsif match = line.match( /^(!|\|)$/ )
+        elsif match = line.match( /^ *(!|\|)$/ )
           # cell without text
           row.push( "" )
-        elsif match = line.match( /^(!|\|)(.+)$/ )
+        elsif match = line.match( /^ *(!|\|)(.+)$/ )
           match[2].split( '||', -1 ).each do | column | row.push( column.strip ) end
-        elsif match = line.match( /^[^!|][^|]*$/ )
+        elsif match = line.match( /^ *[^!|][^|]*$/ )
           # multiline cell
           row[-1] += "\n" + line
         else
