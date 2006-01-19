@@ -42,8 +42,12 @@ module MediaWiki
         elsif match = line.match( /^ *(!|\|)$/ )
           # cell without text
           row.push( "" )
-        elsif match = line.match( /^ *(!|\|)(.+)$/ )
-          match[2].split( '||', -1 ).each do | column | row.push( column.strip ) end
+        elsif match = line.match( /^ *!(.+)$/ )
+          # header line with cell(s)
+          match[1].split( /\|\||!!/, -1 ).each do | column | row.push( column.strip ) end
+        elsif match = line.match( /^ *\|(.+)$/ )
+          # ordinary line with cell(s)
+          match[1].split( '||', -1 ).each do | column | row.push( column.strip ) end
         elsif match = line.match( /^ *[^!|][^|]*$/ )
           # multiline cell
           row[-1] += "\n" + line
