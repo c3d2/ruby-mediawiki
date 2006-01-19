@@ -111,8 +111,9 @@ class Comment_Synchronizer
       page.text = @sql.get_table_description( table ).to_s + "\n"
       # table header
       page.text += "==Columns==\n"
+      page.text += "[[Database/Tables|<< List of Tables]]\n"
       t = MediaWiki::Table.new
-      t.style = 'border="1" cellspacing="0" cellpadding="3"'
+      t.style = 'border="1" cellspacing="0" cellpadding="3" style="border-collapse: collapse;"'
       t.header_style = 'bgcolor="lightblue"'
       t.header = ['field name', 'datatype', 'description']
 
@@ -121,7 +122,6 @@ class Comment_Synchronizer
       end
       page.text += t.text
       page.text += "\n[[Category:Database]]\n"
-      puts page.text
       page.submit("updating page for table #{table}")
 
     end
