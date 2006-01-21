@@ -9,8 +9,8 @@ module MediaWiki
   class Table
     ##
     # Initialize a Table instance
-    # data:: [Array]
-    # header:: [Array]
+    # data:: [Array] 2-dimensional Array with the tables and cells
+    # header:: [Array] 1-dimensional Array used as header
     def initialize( data = [], header = [] )
       @data = data
       @header = header
@@ -36,7 +36,7 @@ module MediaWiki
     # Parses the wiki markup of a table and returns a 2-dimensional
     # array representing rows and columns of the table. Currently only
     # the mediawiki pipe syntax is supported.
-    # text:: [String]
+    # text:: [String] String to parse
     def self.parse( text )
       table, row = nil, nil
       text.each_line do | line |
