@@ -1,7 +1,16 @@
 
 module MediaWiki
 
+  ##
+  # The MediaWiki::Table class is used to parse existing
+  # tables from mediawiki articles and to create tables
+  # from arrays. Currently only the mediawiki pipe syntax is
+  # supported.
   class Table
+    ##
+    # Initialize a Table instance
+    # data:: [Array]
+    # header:: [Array]
     def initialize( data = [], header = [] )
       @data = data
       @header = header
@@ -9,6 +18,8 @@ module MediaWiki
 
     attr_accessor :style, :header_style, :row_style, :data, :header
 
+    ##
+    # Creates the mediawiki markup to be put in an article
     def text
       markup = "{| #{@style}\n"
       markup += "|---- #{@header_style}\n" if @header_style unless @header.empty?
@@ -20,10 +31,12 @@ module MediaWiki
       markup += "|}"
       markup
     end
-  
-    # takes the wiki markup of a table and returns a 2-dimensional array representing the rows and columns of the table
-    #
-    # TODO: fill member variables according to parsed tables
+
+    ##
+    # Parses the wiki markup of a table and returns a 2-dimensional
+    # array representing rows and columns of the table. Currently only
+    # the mediawiki pipe syntax is supported.
+    # text:: [String]
     def self.parse( text )
       table, row = nil, nil
       text.each_line do | line |
