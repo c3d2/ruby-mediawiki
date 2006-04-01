@@ -93,6 +93,12 @@ module MediaWiki
       "#{@url.path}index.php?title=#{CGI::escape(name.gsub(' ', '_'))}#{section ? "&section=#{CGI::escape(section.to_s)}" : ''}"
     end
 
+    def full_article_url(name, section=nil)
+      uri = @url.dup
+      uri.path, uri.query = article_url(name, section).split(/\?/, 2)
+      uri.to_s
+    end
+
   end
 
 end
