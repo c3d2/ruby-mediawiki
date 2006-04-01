@@ -6,8 +6,6 @@ require 'rdoc/ri/ri_reader'
 $:.unshift('../lib')
 require 'mediawiki/dotfile'
 
-ENV['MEDIAWIKI_WIKI'] = 'astrobot'
-
 
 def find(dir, &block)
   Dir.foreach(dir) { |file|
