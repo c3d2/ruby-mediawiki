@@ -97,7 +97,7 @@ classes.each { |klass|
   }
 }
 
-if true # Dry run?
+if false # Dry run?
   puts text
   exit
 end
