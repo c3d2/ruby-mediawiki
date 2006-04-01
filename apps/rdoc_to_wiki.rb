@@ -6,6 +6,8 @@ require 'rdoc/ri/ri_reader'
 $:.unshift('../lib')
 require 'mediawiki/dotfile'
 
+ENV['MEDIAWIKI_WIKI'] = 'astrobot'
+
 
 def find(dir, &block)
   Dir.foreach(dir) { |file|
@@ -97,7 +99,7 @@ classes.each { |klass|
   }
 }
 
-if false    # Dry run?
+if true # Dry run?
   puts text
   exit
 end
