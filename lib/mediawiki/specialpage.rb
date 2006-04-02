@@ -11,7 +11,7 @@ module MediaWiki
     def xhtml_reload
       html = @wiki.browser.get_content("#{@wiki.article_url(@name, @section)}")
       html.scan(/<!-- start content -->(.+)<!-- end content -->/m) { |content,|
-        @xhtml = REXML::Document.new("<xhtml>#{content}</xhtml>").root
+        @xhtml = to_rexml( "<xhtml>#{content}</xhtml>" )
       }
       @xhtml_cached = true
     end

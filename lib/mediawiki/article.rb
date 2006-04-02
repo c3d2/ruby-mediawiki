@@ -1,4 +1,9 @@
-require 'rexml/document'
+begin
+  require 'htree'
+rescue LoadError
+  STDERR.puts( 'htree library missing. Cannot sanitize HTML.' )
+  require 'rexml/document'
+end
 
 module MediaWiki
   ##
@@ -57,7 +62,7 @@ module MediaWiki
     # will be automatically done by Article#xhtml if not already cached.
     def xhtml_reload
       html = @wiki.browser.get_content("#{@wiki.article_url(full_name, @section)}")
-      @xhtml = REXML::Document.new(html).root
+      @xhtml = to_rexml( html )
       
       @xhtml_cached = true
     end
@@ -71,7 +76,7 @@ module MediaWiki
     end
 
     def parse(html)
-      doc = REXML::Document.new(html).root
+      doc = to_rexml( html )
       # does not work for MediaWiki 1.4.x and is always the same name you ask for under 1.5.x
       # @name = doc.elements['//span[@class="editHelp"]/a'].attributes['title']
       form = doc.elements['//form[@name="editform"]']
@@ -149,12 +154,23 @@ module MediaWiki
     # result:: [Array] of [String] Article names
     def what_links_here
       res = []
-      links = REXML::Document.new(@wiki.browser.get_content(@wiki.article_url("Spezial:Whatlinkshere/#{full_name}"))).root
+      links = to_rexml(@wiki.browser.get_content(@wiki.article_url("Spezial:Whatlinkshere/#{full_name}")))
       links.each_element('//div[@id="bodyContent"]//ul/li/a') { |a|
         res << a.attributes['title']
       }
       res
     end
+
+  protected
+    def to_rexml( html )
+      if $".member?( 'htree.rb' )
+        rexml = HTree( html ).to_rexml
+      else
+        rexml = REXML::Document.new( html )
+      end
+      rexml.root
+    end
+
   end
 
 end
