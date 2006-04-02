@@ -11,6 +11,7 @@
 require 'uri'
 
 require 'mediawiki/article'
+require 'mediawiki/specialpage'
 require 'mediawiki/category'
 require 'mediawiki/minibrowser'
 
@@ -73,7 +74,7 @@ module MediaWiki
     # result:: [Array] of [String] Articlenames
     def allpages()
       pages = []
-      Article.new( self, 'Special:Allpages', nil, false ).xhtml.each_element('table[2]/tr/td/a') do | a |
+      SpecialPage.new( self, 'Special:Allpages', nil, false ).xhtml.each_element('table[2]/tr/td/a') do | a |
         pages.push( a.text )
       end
       pages
