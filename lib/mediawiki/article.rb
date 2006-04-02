@@ -72,7 +72,8 @@ module MediaWiki
 
     def parse(html)
       doc = REXML::Document.new(html).root
-      @name = doc.elements['//span[@class="editHelp"]/a'].attributes['title']
+      # does not work for MediaWiki 1.4.x and is always the same name you ask for under 1.5.x
+      # @name = doc.elements['//span[@class="editHelp"]/a'].attributes['title']
       form = doc.elements['//form[@name="editform"]']
       @text = form.elements['textarea[@name="wpTextbox1"]'].text
       begin
