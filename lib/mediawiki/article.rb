@@ -15,6 +15,9 @@ module MediaWiki
     ##
     # Article text, will be set by Article#reload
     attr_accessor :text
+    ##
+    # this Article is read_only
+    attr_accessor :read_only
 
     ##
     # Create a new Article instance
@@ -79,15 +82,22 @@ module MediaWiki
       doc = to_rexml( html )
       # does not work for MediaWiki 1.4.x and is always the same name you ask for under 1.5.x
       # @name = doc.elements['//span[@class="editHelp"]/a'].attributes['title']
-      form = doc.elements['//form[@name="editform"]']
-      @text = form.elements['textarea[@name="wpTextbox1"]'].text
-      begin
-        form.each_element('input') { |e|
-          @wp_edittoken = e.attributes['value'] if e.attributes['name'] == 'wpEditToken'
-          @wp_edittime = e.attributes['value'] if e.attributes['name'] == 'wpEdittime'
-        }
-      rescue NoMethodError
-        # wpEditToken might be missing, that's ok
+      if form = doc.elements['//form[@name="editform"]']
+        # we got an editable article
+        @text = form.elements['textarea[@name="wpTextbox1"]'].text
+        begin
+          form.each_element('input') { |e|
+            @wp_edittoken = e.attributes['value'] if e.attributes['name'] == 'wpEditToken'
+            @wp_edittime = e.attributes['value'] if e.attributes['name'] == 'wpEdittime'
+          }
+          @read_only = false
+        rescue NoMethodError
+          # wpEditToken might be missing, that's ok
+        end
+      else
+        # the article is probably locked and you do not have sufficient privileges
+        @text = doc.elements['//textarea'].text
+        @read_only = true
       end
     end
 
@@ -99,6 +109,7 @@ module MediaWiki
     # minor_edit:: [Boolean] This is a Minor Edit
     # watch_this:: [Boolean] Watch this article
     def submit(summary, minor_edit=false, watch_this=false, retries=10)
+      raise "This Article is read-only." if read_only
       puts "Posting to #{@wiki.article_url(full_name, @section)}&action=submit with wpEditToken=#{@wp_edittoken} wpEdittime=#{@wp_edittime}"
       data = {'wpTextbox1' => @text, 'wpSummary' => summary, 'wpSave' => 1, 'wpEditToken' => @wp_edittoken, 'wpEdittime' => @wp_edittime}
       data['wpMinoredit'] = 1 if minor_edit
