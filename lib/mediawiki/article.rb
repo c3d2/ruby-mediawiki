@@ -163,7 +163,7 @@ module MediaWiki
 
   protected
     def to_rexml( html )
-      if $".member?( 'htree.rb' )
+      if Class.constants.member?( 'HTree' )
         rexml = HTree( html ).to_rexml
       else
         rexml = REXML::Document.new( html )
