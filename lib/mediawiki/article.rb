@@ -74,7 +74,7 @@ module MediaWiki
     # Reload Article#text,
     # should be done by Article#initialize.
     def reload
-      puts "Loading #{@wiki.article_url(full_name, @section)}&action=edit"
+      #puts "Loading #{@wiki.article_url(full_name, @section)}&action=edit"
       parse @wiki.browser.get_content("#{@wiki.article_url(full_name, @section)}&action=edit")
     end
 
