@@ -9,6 +9,7 @@
 # infrastructure. See sample apps and <tt>mediawikirc.sample</tt>.
 
 require 'uri'
+require 'logger'
 
 require 'mediawiki/article'
 require 'mediawiki/specialpage'
@@ -22,16 +23,30 @@ module MediaWiki
     # The MiniBrowser instance used by this Wiki.
     # This must be readable as it's used by Article and Category
     # to fetch themselves.
-    attr_reader :browser
+    attr_reader :browser 
+
+    ##
+    # The Logger used by this Wiki.
+    attr_reader :logger
 
     ##
     # Initialize a new Wiki instance.
     # url:: [String] URL-Path to index.php (without index.php), may containt <tt>user:password</tt> combination.
     # user:: [String] If not nil, log in with that MediaWiki username (see Wiki#login)
     # password:: [String] If not nil, log in with that MediaWiki password (see Wiki#login)
-    def initialize(url, user = nil, password = nil)
+    # loglevel:: [Integer] Loglevel, default is to log all messages >= Logger::WARN = 2
+    def initialize(url, user = nil, password = nil, loglevel = Logger::WARN)
+
+      @logger = Logger.new(STDERR)
+      if ENV['MEDIAWIKI_DEBUG']
+        @logger.level = Logger::DEBUG
+      else 
+        @logger.level = loglevel
+      end
+      
       @url = URI.parse( url.match(/\/$/) ? url : url + '/' )
-      @browser = MiniBrowser.new(@url)
+      @browser = MiniBrowser.new(@url,@logger)
+
       login( user, password ) if user and password
     end
 
