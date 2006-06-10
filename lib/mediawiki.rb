@@ -103,10 +103,17 @@ module MediaWiki
 
     ##
     # Returns the pages listed on "Special:Allpages"
+    #
+    # TODO: Handle big wikis with chunked Special:Allpages
+    # namespace_id:: Optional namespace for article index (see Wiki#namespace_ids to retrieve id)
     # result:: [Array] of [String] Articlenames
-    def allpages()
+    def allpages(namespace_id=nil)
+      # Dirty, but works
+      article_name = 'Special:Allpages'
+      article_name += "&namespace=#{namespace_id}" if namespace_id
+
       pages = []
-      SpecialPage.new( self, 'Special:Allpages', nil, false ).xhtml.each_element('table[2]/tr/td/a') do | a |
+      SpecialPage.new( self, article_name, nil, false ).xhtml.each_element('table[2]/tr/td/a') do | a |
         pages.push( a.text )
       end
       pages
