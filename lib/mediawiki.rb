@@ -11,11 +11,22 @@
 require 'uri'
 require 'logger'
 
+
+# Logger is required by article.rb
+module MediaWiki
+  def self.logger
+    if defined? @@logger
+      @@logger
+    else
+      @@logger = Logger.new(STDERR)
+    end
+  end
+end
+
 require 'mediawiki/article'
 require 'mediawiki/specialpage'
 require 'mediawiki/category'
 require 'mediawiki/minibrowser'
-
 
 module MediaWiki
   class Wiki
@@ -37,15 +48,14 @@ module MediaWiki
     # loglevel:: [Integer] Loglevel, default is to log all messages >= Logger::WARN = 2
     def initialize(url, user = nil, password = nil, loglevel = Logger::WARN)
 
-      @logger = Logger.new(STDERR)
       if ENV['MEDIAWIKI_DEBUG']
-        @logger.level = Logger::DEBUG
+        MediaWiki::logger.level = Logger::DEBUG
       else 
-        @logger.level = loglevel
+        MediaWiki::logger.level = loglevel
       end
       
       @url = URI.parse( url.match(/\/$/) ? url : url + '/' )
-      @browser = MiniBrowser.new(@url,@logger)
+      @browser = MiniBrowser.new(@url)
 
       login( user, password ) if user and password
     end

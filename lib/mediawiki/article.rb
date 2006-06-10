@@ -1,9 +1,10 @@
 begin
   require 'htree'
 rescue LoadError
-  @wiki.logger.warn("htree library missing. Cannot sanitize HTML.")
+  MediaWiki::logger.warn("htree library missing. Cannot sanitize HTML.")
   require 'rexml/document'
 end
+
 
 module MediaWiki
   ##
@@ -74,7 +75,7 @@ module MediaWiki
     # Reload Article#text,
     # should be done by Article#initialize.
     def reload
-      @wiki.logger.debug("Loading #{@wiki.article_url(full_name, @section)}&action=edit")
+      MediaWiki::logger.debug("Loading #{@wiki.article_url(full_name, @section)}&action=edit")
       parse @wiki.browser.get_content("#{@wiki.article_url(full_name, @section)}&action=edit")
     end
 
@@ -110,7 +111,7 @@ module MediaWiki
     # watch_this:: [Boolean] Watch this article
     def submit(summary, minor_edit=false, watch_this=false, retries=10)
       raise "This Article is read-only." if read_only
-      @wiki.logger.debug("Posting to #{@wiki.article_url(full_name, @section)}&action=submit with wpEditToken=#{@wp_edittoken} wpEdittime=#{@wp_edittime}")
+      MediaWiki::logger.debug("Posting to #{@wiki.article_url(full_name, @section)}&action=submit with wpEditToken=#{@wp_edittoken} wpEdittime=#{@wp_edittime}")
       data = {'wpTextbox1' => @text, 'wpSummary' => summary, 'wpSave' => 1, 'wpEditToken' => @wp_edittoken, 'wpEdittime' => @wp_edittime}
       data['wpMinoredit'] = 1 if minor_edit
       data['wpWatchthis'] = 'on' if watch_this

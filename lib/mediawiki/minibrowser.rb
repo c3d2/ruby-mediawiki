@@ -16,13 +16,12 @@ module MediaWiki
     ##
     # Initialize a MiniBrowser instance
     # url:: [URI::HTTP] or [URI::HTTPS]
-    def initialize(url,logger)
+    def initialize(url)
       @url = url
       @http = Net::HTTP.new( @url.host, @url.port )
       @http.use_ssl = true if @url.class == URI::HTTPS
       @user_agent = 'WikiBot'
       @cookies = {}
-      @logger = logger
     end
 
     ##
@@ -68,7 +67,7 @@ module MediaWiki
             when Net::HTTPSuccess, Net::HTTPNotFound then 
               return response.body
             when Net::HTTPRedirection then
-              @logger.debug("Redirecting to #{response['Location']}")
+              MediaWiki::logger.debug("Redirecting to #{response['Location']}")
               retries -= 1
               url = response['Location']
             else
@@ -108,7 +107,7 @@ module MediaWiki
           return response.body
         when Net::HTTPRedirection
         then
-          @logger.debug("Redirecting to #{response['Location']}")
+          MediaWiki::logger.debug("Redirecting to #{response['Location']}")
           begin
             add_cookie( response.get_fields('Set-Cookie') ) if response['Set-Cookie']
           rescue NoMethodError
