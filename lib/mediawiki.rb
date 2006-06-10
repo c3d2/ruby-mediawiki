@@ -37,10 +37,6 @@ module MediaWiki
     attr_reader :browser 
 
     ##
-    # The Logger used by this Wiki.
-    attr_reader :logger
-
-    ##
     # Initialize a new Wiki instance.
     # url:: [String] URL-Path to index.php (without index.php), may containt <tt>user:password</tt> combination.
     # user:: [String] If not nil, log in with that MediaWiki username (see Wiki#login)
@@ -92,6 +88,17 @@ module MediaWiki
     # section:: [Fixnum] Optional section number
     def article(name, section = nil)
       Article.new(self, name, section)
+    end
+
+    ##
+    # Retrieve all namespaces and their IDs, which could be used for Wiki#allpages
+    # result:: [Hash] String => Fixnum
+    def namespace_ids
+      ids = {}
+      SpecialPage.new( self, 'Special:Allpages', nil, false ).xhtml.each_element('//select[@name=\'namespace\']/option') do | o |
+        ids[o.text] = o.attributes['value'].to_i
+      end
+      ids
     end
 
     ##
