@@ -58,7 +58,19 @@ module MediaWiki
     # result:: [String] URL
     def url
       uri = @wiki.url.dup
-      uri.path = xhtml.elements['//li[@id="ca-nstab-main"]//a'].attributes['href']
+      uri.path, uri.query = xhtml.elements['//li[@id="ca-nstab-main"]//a'].attributes['href'].split(/\?/, 2)
+      uri.to_s
+    end
+    
+    ##
+    # Return the URL of the talk page of the article
+    #
+    # This will return a nice human-readable URL if your MediWiki
+    # is configured that way.
+    # result:: [String] URL
+    def talk_url
+      uri = @wiki.url.dup
+      uri.path, uri.query = xhtml.elements['//li[@id="ca-talk"]//a'].attributes['href'].split(/\?/, 2)
       uri.to_s
     end
 
