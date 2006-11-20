@@ -35,6 +35,11 @@ module MediaWiki
     # This must be readable as it's used by Article and Category
     # to fetch themselves.
     attr_reader :browser 
+    
+    ##
+    # The URL-Path to index.php (without index.php) as given 
+    # to Wiki#initialize
+    attr_reader :url
 
     ##
     # Initialize a new Wiki instance.

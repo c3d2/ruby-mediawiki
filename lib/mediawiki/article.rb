@@ -51,6 +51,18 @@ module MediaWiki
     end
 
     ##
+    # Return the URL of the article as configured
+    #
+    # This will return a nice human-readable URL if your MediWiki
+    # is configured that way, unlike Wiki#full_article_url
+    # result:: [String] URL
+    def url
+      uri = @wiki.url.dup
+      uri.path = xhtml.elements['//li[@id="ca-nstab-main"]//a'].attributes['href']
+      uri.to_s
+    end
+
+    ##
     # Get the XHTML,
     # will invoke Article#xhtml_reload if not already cached
     # result:: [REXML::Element] html root element
