@@ -69,7 +69,7 @@ module MediaWiki
     # This will return a nice human-readable URL to the talk page
     # of an article if your MediWiki is configured that way.
     # For empty talk pages this will return an ugly URL just
-    # as MediaWiki dos.
+    # as MediaWiki does.
     # result:: [String] URL
     def talk_url
       uri = @wiki.url.dup
