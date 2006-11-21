@@ -53,8 +53,9 @@ module MediaWiki
     ##
     # Return the URL of the article as configured
     #
-    # This will return a nice human-readable URL if your MediWiki
-    # is configured that way, unlike Wiki#full_article_url
+    # This will return a nice human-readable URL if your MediaWiki
+    # is configured that way, unlike the generic URL returned by
+    # Wiki#full_article_url.
     # result:: [String] URL
     def url
       uri = @wiki.url.dup
@@ -65,8 +66,10 @@ module MediaWiki
     ##
     # Return the URL of the talk page of the article
     #
-    # This will return a nice human-readable URL if your MediWiki
-    # is configured that way.
+    # This will return a nice human-readable URL to the talk page
+    # of an article if your MediWiki is configured that way.
+    # For empty talk pages this will return an ugly URL just
+    # as MediaWiki dos.
     # result:: [String] URL
     def talk_url
       uri = @wiki.url.dup
