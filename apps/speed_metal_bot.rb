@@ -25,7 +25,7 @@ category.articles.each { |name|
 }
 
 ### Construct template ###
-newtemplate = "<div align=\"center\" style=\"border: 1px solid black;\">\n" +
+newtemplate = "<div align=\"center\" style=\"border: 1px solid black; clear: right;\">\n" +
               "<div style=\"float: left; width: 64px; height: 64px;>[[Bild:Speed metal coding 64x64.jpg|left]]</div>\n" +
               "<div style=\"margin-left: 70px; background-color: #e64200; font-size: large; height: 1.5em;\">'''Rübÿ Spëëd Mëtäl Cödïng'''</div>\n" +
               "<div style=\"margin-left: 70px;\">'''Coders:''' "
