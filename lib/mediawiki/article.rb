@@ -199,13 +199,7 @@ module MediaWiki
     ##
     # "what links here" url for this article
     def what_links_here_url(count = nil)
-      case @wiki.language
-      when "de"
-        page = "Spezial:Whatlinkshere"
-      else
-        page = "Special:Whatlinkshere"
-      end
-      url = @wiki.article_url("#{page}/#{full_name}")
+      url = @wiki.article_url("Special:Whatlinkshere/#{full_name}")
       url << "&limit=#{count}" if count
     end
     

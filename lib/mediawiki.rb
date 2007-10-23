@@ -29,6 +29,9 @@ require 'mediawiki/category'
 require 'mediawiki/minibrowser'
 
 module MediaWiki
+  ##
+  # There's no need for any language attribute, the "Special:" prefix
+  # works in any MediaWiki, regardless of localization settings.
   class Wiki
     ##
     # The MiniBrowser instance used by this Wiki.
@@ -41,20 +44,13 @@ module MediaWiki
     # to Wiki#initialize
     attr_reader :url
     
-    
-    ##
-    # The language of the wiki (used for special pages)
-    # Supported: "fr", "de"
-    # Default: "de"
-    attr_accessor :language
-
     ##
     # Initialize a new Wiki instance.
     # url:: [String] URL-Path to index.php (without index.php), may containt <tt>user:password</tt> combination.
     # user:: [String] If not nil, log in with that MediaWiki username (see Wiki#login)
     # password:: [String] If not nil, log in with that MediaWiki password (see Wiki#login)
     # loglevel:: [Integer] Loglevel, default is to log all messages >= Logger::WARN = 2
-    def initialize(url, user = nil, password = nil, loglevel = Logger::WARN, language = "de")
+    def initialize(url, user = nil, password = nil, loglevel = Logger::WARN)
       if ENV['MEDIAWIKI_DEBUG']
         MediaWiki::logger.level = Logger::DEBUG
       else 
@@ -63,7 +59,6 @@ module MediaWiki
       
       @url = URI.parse( url.match(/\/$/) ? url : url + '/' )
       @browser = MiniBrowser.new(@url)
-      @language = language
 
       login( user, password ) if user and password
     end
