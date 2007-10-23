@@ -115,7 +115,7 @@ module MediaWiki
           end
           return get_content(response['Location'])
         else
-          raise "Unknown Response: #{response.inspect}"
+          raise "Unknown Response on #{url}: #{response.inspect}"
       end
     end
   end

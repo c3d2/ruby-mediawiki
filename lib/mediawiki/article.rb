@@ -106,6 +106,9 @@ module MediaWiki
       parse @wiki.browser.get_content("#{@wiki.article_url(full_name, @section)}&action=edit")
     end
 
+    class NoEditFormFound < RuntimeError
+    end
+
     def parse(html)
       doc = to_rexml( html )
       # does not work for MediaWiki 1.4.x and is always the same name you ask for under 1.5.x
@@ -123,9 +126,13 @@ module MediaWiki
           # wpEditToken might be missing, that's ok
         end
       else
-        # the article is probably locked and you do not have sufficient privileges
-        @text = doc.elements['//textarea'].text
-        @read_only = true
+        if doc.elements['//textarea']
+          # the article is probably locked and you do not have sufficient privileges
+          @text = doc.elements['//textarea'].text
+          @read_only = true
+        else
+          raise NoEditFormFound, "Error while parsing result, no edit form found"
+        end
       end
     end
 
@@ -144,12 +151,13 @@ module MediaWiki
       data['wpWatchthis'] = 'on' if watch_this
       begin
         parse @wiki.browser.post_content("#{@wiki.article_url(full_name, @section)}&action=submit", data)
-      rescue NoMethodError
+      rescue NoEditFormFound
         # This means, we havn't got the preview page, but the posted article
         # So everything is Ok, but we must reload the edit page here, to get
         # a new wpEditToken and wpEdittime
         reload
         return
+      rescue Net::HTTPInternalServerError
       end
 
       unless @wp_edittoken.to_s == '' and @wp_edittime.to_s == ''
@@ -189,15 +197,39 @@ module MediaWiki
     end
 
     ##
+    # "what links here" url for this article
+    def what_links_here_url(count = nil)
+      case @wiki.language
+      when "de"
+        page = "Spezial:Whatlinkshere"
+      else
+        page = "Special:Whatlinkshere"
+      end
+      url = @wiki.article_url("#{page}/#{full_name}")
+      url << "&limit=#{count}" if count
+    end
+    
+
+    ##
     # What articles link to this article?
     # result:: [Array] of [String] Article names
-    def what_links_here
+    def what_links_here(count = nil)
       res = []
-      links = to_rexml(@wiki.browser.get_content(@wiki.article_url("Spezial:Whatlinkshere/#{full_name}")))
+      url = what_links_here_url(count)
+      links = to_rexml(@wiki.browser.get_content(url))
       links.each_element('//div[@id="bodyContent"]//ul/li/a') { |a|
         res << a.attributes['title']
       }
       res
+    end
+    
+    def fast_what_links_here(count = nil)
+      res = []
+      url = what_links_here_url(count)
+      content = @wiki.browser.get_content(url)
+      content.scan(%r{<li><a href=".+?" title="(.+?)">.+?</a>.+?</li>}).flatten.map { |title|
+        REXML::Text.unnormalize(title)
+      }
     end
 
   protected
