@@ -1,0 +1,60 @@
+Ruby-MediaWiki 0.1
+------------------
+------------------
+
+A library to retrieve and modify content managed by the popular
+MediaWiki software.
+
+
+AUTHORS
+=======
+
+Sven Klemm
+Stephan Maka
+Mike Gerber
+Michael Witrant
+
+(patches go to stephan@spaceboyz.net)
+
+
+LICENSE
+=======
+
+Distributed under the GNU General Public License version 3, see the
+COPYING file.
+
+
+USAGE
+=====
+
+Ruby-MediaWiki relies on a configuration file with URLs, user account
+details and per-agent settings in YAML. The sample mediawikirc.sample
+should be rather self-explanatory.
+
+There are various environment variables for easy usage:
+
+* MEDIAWIKI_RC    - location of the configuration file
+                    (default: ~/.mediawikirc)
+* MEDIAWIKI_WIKI  - which section of the configuration file to use
+                    (default is the one set in the `default' key)
+* MEDIAWIKI_DEBUG - if set, set the log level to DEBUG
+
+Quick start:
+------------
+ruby-mediawiki % export RUBYLIB=`pwd`/lib
+ruby-mediawiki % export MEDIAWIKI_RC=mediawikirc.sample 
+ruby-mediawiki % export MEDIAWIKI_WIKI=wpde
+ruby-mediawiki % ruby apps/wikicat.rb Arschgeweih 
+
+
+RESOURCES
+=========
+
+German description:
+  https://wiki.c3d2.de/Ruby-MediaWiki
+
+RDoc to Wiki:
+  https://wiki.c3d2.de/Ruby-MediaWiki/Documentation
+
+SVN repository:
+  svn://svn.c3d2.de/ruby-mediawiki/trunk
