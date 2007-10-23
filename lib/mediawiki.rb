@@ -16,15 +16,6 @@
     <http://www.gnu.org/licenses/>.
 =end
 
-##
-# =Ruby-MediaWiki - manipulate MediaWiki pages from Ruby.
-#
-# Please note that documents spit out by MediaWiki *must* be valid
-# XHTML (or XML)!
-#
-# You may not want to use MediaWiki::Wiki directly but let MediaWiki.dotfile
-# create your instance. This gives you the power of the dotfile
-# infrastructure. See sample apps and <tt>mediawikirc.sample</tt>.
 
 require 'uri'
 require 'logger'
@@ -46,6 +37,15 @@ require 'mediawiki/specialpage'
 require 'mediawiki/category'
 require 'mediawiki/minibrowser'
 
+##
+# =Ruby-MediaWiki - manipulate MediaWiki pages from Ruby.
+#
+# Please note that documents spit out by MediaWiki *must* be valid
+# XHTML (or XML)!
+#
+# You may not want to use MediaWiki::Wiki directly but let MediaWiki.dotfile
+# create your instance. This gives you the power of the dotfile
+# infrastructure. See sample apps and <tt>mediawikirc.sample</tt>.
 module MediaWiki
   ##
   # There's no need for any language attribute, the "Special:" prefix
