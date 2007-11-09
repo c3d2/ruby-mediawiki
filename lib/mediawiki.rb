@@ -64,17 +64,17 @@ module MediaWiki
     
     ##
     # Initialize a new Wiki instance.
-    # url:: [String] URL-Path to index.php (without index.php), may containt <tt>user:password</tt> combination.
+    # url:: [String] URL-Path to index.php (without index.php), may contain <tt>user:password</tt> combination.
     # user:: [String] If not nil, log in with that MediaWiki username (see Wiki#login)
     # password:: [String] If not nil, log in with that MediaWiki password (see Wiki#login)
     # loglevel:: [Integer] Loglevel, default is to log all messages >= Logger::WARN = 2
     def initialize(url, user = nil, password = nil, loglevel = Logger::WARN)
       if ENV['MEDIAWIKI_DEBUG']
         MediaWiki::logger.level = Logger::DEBUG
-      else 
+      else
         MediaWiki::logger.level = loglevel
       end
-      
+
       @url = URI.parse( url.match(/\/$/) ? url : url + '/' )
       @browser = MiniBrowser.new(@url)
 
