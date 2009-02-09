@@ -219,6 +219,7 @@ module MediaWiki
     def what_links_here_url(count = nil)
       url = @wiki.article_url("Special:Whatlinkshere/#{full_name}")
       url << "&limit=#{count}" if count
+      url
     end
     
 
