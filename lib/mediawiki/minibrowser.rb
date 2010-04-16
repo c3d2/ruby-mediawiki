@@ -34,10 +34,17 @@ module MediaWiki
     ##
     # Initialize a MiniBrowser instance
     # url:: [URI::HTTP] or [URI::HTTPS]
-    def initialize(url)
+    # ca_file:: [String] Path to a CA certificate file
+    def initialize(url, ca_file = "/etc/ssl/certs/ca-certificates.crt")
       @url = url
       @http = Net::HTTP.new( @url.host, @url.port )
-      @http.use_ssl = true if @url.class == URI::HTTPS
+      if @url.class == URI::HTTPS
+        @http.use_ssl = true
+        if File.exist?(ca_file)
+          @http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+          @http.ca_file = ca_file
+        end
+      end
       @user_agent = 'WikiBot'
       @cookies = {}
     end
