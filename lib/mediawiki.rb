@@ -20,6 +20,12 @@
 require 'uri'
 require 'logger'
 
+begin
+  require 'htree'
+rescue LoadError
+  MediaWiki::logger.warn("htree library missing. Cannot sanitize HTML.")
+  require 'rexml/document'
+end
 
 # Logger is required by article.rb
 module MediaWiki
@@ -91,9 +97,20 @@ module MediaWiki
     #
     # May raise an exception if cannot authenticate
     def login( username, password )
-      data = {'wpName' => username, 'wpPassword' => password, 'wpLoginattempt' => 'Log in'}
+      # Get wpLoginToken
+      data = @browser.get_content( @url.path + 'index.php?title=Special:UserLogin' )
+      doc = to_rexml( data )
+      wp_logintoken = nil
+      if form = doc.elements['//form[@name="userlogin"]']
+        form.each_element('input') { |e|
+          wp_logintoken = e.attributes['value'] if e.attributes['name'] == 'wpLoginToken'
+        }
+      end
+      MediaWiki::logger.debug("Logging in with wpLoginToken=#{wp_logintoken}")
+
+      data = {'wpName' => username, 'wpPassword' => password, 'wpLoginattempt' => 'Log in', 'wpRemember' => 1, 'wpLoginToken' => wp_logintoken}
       data = @browser.post_content( @url.path + 'index.php?title=Special:Userlogin&action=submitlogin', data )
-      if data =~ /<p class='error'>/
+      if data =~ /<p class='error'>/ or data =~ /<div class="errorbox">/
         raise "Unable to authenticate as #{username}"
       end
     end
@@ -162,6 +179,16 @@ module MediaWiki
       uri = @url.dup
       uri.path, uri.query = article_url(name, section).split(/\?/, 2)
       uri.to_s
+    end
+  
+  protected
+    def to_rexml( html )
+      if Class.constants.member?( 'HTree' )
+        rexml = HTree( html ).to_rexml
+      else
+        rexml = REXML::Document.new( html )
+      end
+      rexml.root
     end
 
   end

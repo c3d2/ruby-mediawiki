@@ -90,8 +90,18 @@ module MediaWiki
 
           case response 
             when Net::HTTPSuccess, Net::HTTPNotFound then 
+              begin
+                add_cookie( response.get_fields('Set-Cookie') ) if response['Set-Cookie']
+              rescue NoMethodError
+                add_cookie( response['Set-Cookie'] ) if response['Set-Cookie']
+              end
               return response.body
             when Net::HTTPRedirection then
+              begin
+                add_cookie( response.get_fields('Set-Cookie') ) if response['Set-Cookie']
+              rescue NoMethodError
+                add_cookie( response['Set-Cookie'] ) if response['Set-Cookie']
+              end
               MediaWiki::logger.debug("Redirecting to #{response['Location']}")
               retries -= 1
               url = response['Location']
